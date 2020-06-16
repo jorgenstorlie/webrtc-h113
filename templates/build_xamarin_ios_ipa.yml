@@ -1,8 +1,5 @@
 parameters:
   xamarinSdkVersion: ''
-  p12FileName: ''
-  p12Password: ''
-  provisioningProfile: ''
   solutionPath: ''
   buildConfiguration: ''
   signingIdentity: ''
