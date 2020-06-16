@@ -1,32 +1,50 @@
-# Xamarin.iOS
-# Build a Xamarin.iOS project.
-# Add steps that install certificates, test, sign, and distribute an app, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/xamarin
-
 trigger:
-- master
+  - master
 
 pool:
-  vmImage: 'macos-latest'
+  vmImage: 'macOS-10.14'
 
-steps:
-# To manually select a Xamarin SDK version on the Microsoft-hosted macOS agent,
-# configure this task with the *Mono* version that is associated with the
-# Xamarin SDK version that you need, and set the "enabled" property to true.
-# See https://go.microsoft.com/fwlink/?linkid=871629
-- script: sudo $AGENT_HOMEDIRECTORY/scripts/select-xamarin-sdk.sh 5_12_0
-  displayName: 'Select the Xamarin SDK version'
-  enabled: false
+variables:
+  - group: xamarin-full-pipeline
+  - template: templates/variables.yml
 
-- task: NuGetToolInstaller@1
+schedules:
+- cron: "0 0 * * 1-5"
+  displayName: Daily midnight build
+  branches:
+    include:
+    - master
 
-- task: NuGetCommand@2
-  inputs:
-    restoreSolution: '**/*.sln'
+stages:
+  - stage: Run_Unit_Tests
+    jobs:
+      - job:
+        displayName: 'Run Unit Tests'
+        steps:
+          - template: templates/run_unit_tests.yml
+            parameters:
+              solutionPath: '$(solutionPath)'
+              projects: '$(Build.SourcesDirectory)/XamarinDevOps.Tests/*.csproj'
+              buildConfiguration: '$(buildConfiguration)'
+  - stage: Build_Xamarin_iOS
+    dependsOn: Run_Unit_Tests
+    jobs:
+      - job:
+        displayName: 'Build Xamarin.iOS'
+        workspace:
+          clean: all
+        steps:
+          - template: templates/init_restore.yml
+            parameters:
+              solutionPath: '$(solutionPath)'
 
-- task: XamariniOS@2
-  inputs:
-    solutionFile: '**/*.sln'
-    configuration: 'Release'
-    buildForSimulator: true
-    packageApp: false
+          - template: templates/build_xamarin_ios_ipa.yml
+            parameters:
+              xamarinSdkVersion: '$(xamarinSdkVersion)'
+              p12FileName: '$(p12FileName)'
+              p12Password: '$(p12Password)'
+              provisioningProfile: '$(provisioningProfile)'
+              solutionPath: '$(solutionPath)'
+              buildConfiguration: '$(buildConfiguration)'
+              signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
+              signingProvisioningProfileID: '$(APPLE_PROV_PROFILE_UUID)'
