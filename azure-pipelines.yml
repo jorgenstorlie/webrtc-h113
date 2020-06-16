@@ -34,9 +34,6 @@ stages:
           - template: templates/build_xamarin_ios_ipa.yml
             parameters:
               xamarinSdkVersion: '$(xamarinSdkVersion)'
-              p12FileName: '$(p12FileName)'
-              p12Password: '$(p12Password)'
-              provisioningProfile: '$(provisioningProfile)'
               solutionPath: '$(solutionPath)'
               buildConfiguration: '$(buildConfiguration)'
               signingIdentity: '$(APPLE_CERTIFICATE_SIGNING_IDENTITY)'
