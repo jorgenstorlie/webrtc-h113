@@ -24,7 +24,7 @@ stages:
           - template: templates/run_unit_tests.yml
             parameters:
               solutionPath: '$(solutionPath)'
-              projects: '$(Build.SourcesDirectory)/XamarinDevOps.Tests/*.csproj'
+              projects: '$(Build.SourcesDirectory)/src/WebRTC.iOS.Demo/*.csproj'
               buildConfiguration: '$(buildConfiguration)'
   - stage: Build_Xamarin_iOS
     dependsOn: Run_Unit_Tests
