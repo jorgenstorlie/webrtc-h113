@@ -8,13 +8,6 @@ variables:
   - group: xamarin-full-pipeline
   - template: templates/variables.yml
 
-schedules:
-- cron: "0 0 * * 1-5"
-  displayName: Daily midnight build
-  branches:
-    include:
-    - master
-
 stages:
   - stage: Run_Unit_Tests
     jobs:
